@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">DAMD-Dondiego-p1e2</string>
+    <string name="titulo1">Agenda en android</string>
+    <string name="lnombre">Ingresa tu nombre</string>
+    <string name="hnombre">Aqui tu nombre </string>
+    <string name="ledad">Ingresa tu edad</string>
+    <string name="hedad">Aqui tu edad</string>
+    <string name="lcorreo">Ingresa tu correo</string>
+    <string name="hcorreo">Aqui tu correo</string>
+    <string name="btnGrabar">Grabar</string>
+    <string name="btnEditar">Editar</string>
+    <string name="btnEliminar">Eliminar</string>
+    <string name="btnLimpiar">Limpiar</string>
+</resources>
