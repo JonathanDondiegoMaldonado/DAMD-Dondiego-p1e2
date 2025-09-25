@@ -18,11 +18,12 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 public class PrincipalActivity extends AppCompatActivity {
+
     ArrayList<String> datos = null;
     EditText txtnombre, txtcorreo, txtedad;
     GridView gvdatos;
     ArrayAdapter<String> adaptador;
-    private int posicionSeleccionada = -1; // Para saber qué registro está seleccionado
+    private int posicionSeleccionada = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +41,29 @@ public class PrincipalActivity extends AppCompatActivity {
         txtedad = findViewById(R.id.txtedad);
         gvdatos = findViewById(R.id.gvdatos);
 
+        habilitarCampos(false);
+
         inicializarDatos();
         configurarGridView();
     }
 
+    private void habilitarCampos(boolean habilitar) {
+        txtnombre.setEnabled(habilitar);
+        txtcorreo.setEnabled(habilitar);
+        txtedad.setEnabled(habilitar);
+    }
+
+    private void limpiarCampos() {
+        txtnombre.setText("");
+        txtcorreo.setText("");
+        txtedad.setText("");
+    }
+
     private void inicializarDatos() {
-        if(datos == null) {
+        if (datos == null) {
             datos = new ArrayList<>();
             cargarInfo();
-            if(datos.size() == 3) { // Solo tiene las cabeceras
-                Toast.makeText(this, "No hay datos", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Datos cargados", Toast.LENGTH_LONG).show();
-            }
         }
-
         adaptador = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, datos);
         gvdatos.setAdapter(adaptador);
     }
@@ -63,7 +72,7 @@ public class PrincipalActivity extends AppCompatActivity {
         gvdatos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position > 2 && position % 3 == 0) { // Posiciones 3, 6, 9, 12...
+                if (position >= 3 && position % 3 == 0) {
                     posicionSeleccionada = position;
 
                     String nombre = datos.get(position);
@@ -74,11 +83,29 @@ public class PrincipalActivity extends AppCompatActivity {
                     txtedad.setText(edad);
                     txtcorreo.setText(correo);
 
+                    habilitarCampos(false);
+
                     Toast.makeText(PrincipalActivity.this,
                             "Registro seleccionado: " + nombre, Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    public void btnNuevo(View v) {
+        posicionSeleccionada = -1;
+        limpiarCampos();
+        habilitarCampos(true);
+        Toast.makeText(this, "Ingrese los datos del nuevo registro", Toast.LENGTH_SHORT).show();
+    }
+
+    public void btnEditar(View v) {
+        if (posicionSeleccionada == -1) {
+            Toast.makeText(this, "Seleccione un registro para editar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        habilitarCampos(true);
+        Toast.makeText(this, "Puede editar la información", Toast.LENGTH_SHORT).show();
     }
 
     public void btnGrabar(View v) {
@@ -91,47 +118,28 @@ public class PrincipalActivity extends AppCompatActivity {
             return;
         }
 
-        datos.add(nombre);
-        datos.add(edad);
-        datos.add(correo);
-        Toast.makeText(this, "Nuevo registro agregado", Toast.LENGTH_SHORT).show();
+        if (posicionSeleccionada == -1) {
+            datos.add(nombre);
+            datos.add(edad);
+            datos.add(correo);
+            Toast.makeText(this, "Nuevo registro guardado", Toast.LENGTH_SHORT).show();
+        } else {
+            datos.set(posicionSeleccionada, nombre);
+            datos.set(posicionSeleccionada + 1, edad);
+            datos.set(posicionSeleccionada + 2, correo);
+            Toast.makeText(this, "Registro actualizado correctamente", Toast.LENGTH_SHORT).show();
+        }
 
         ArchivoTXT info = new ArchivoTXT();
-        if(info.EscribirArchivo(this, datos)) {
+        if (info.EscribirArchivo(this, datos)) {
             adaptador.notifyDataSetChanged();
-            Log.d("Informacion", "Contenido: " + datos);
         } else {
             Toast.makeText(this, "Error al guardar la información", Toast.LENGTH_LONG).show();
         }
-    }
 
-    public void btnEditar(View v) {
-        if (posicionSeleccionada == -1) {
-            Toast.makeText(this, "Seleccione un registro para editar", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String nombre = txtnombre.getText().toString().trim();
-        String edad = txtedad.getText().toString().trim();
-        String correo = txtcorreo.getText().toString().trim();
-
-        if (nombre.isEmpty() || edad.isEmpty() || correo.isEmpty()) {
-            Toast.makeText(this, "Todos los campos son obligatorios para editar", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        datos.set(posicionSeleccionada, nombre);
-        datos.set(posicionSeleccionada + 1, edad);
-        datos.set(posicionSeleccionada + 2, correo);
-
-        ArchivoTXT info = new ArchivoTXT();
-        if(info.EscribirArchivo(this, datos)) {
-            adaptador.notifyDataSetChanged();
-            Toast.makeText(this, "Registro editado correctamente", Toast.LENGTH_SHORT).show();
-            Log.d("Informacion", "Registro editado: " + datos);
-        } else {
-            Toast.makeText(this, "Error al editar el registro", Toast.LENGTH_SHORT).show();
-        }
+        limpiarCampos();
+        habilitarCampos(false);
+        posicionSeleccionada = -1;
     }
 
     public void btnEliminar(View v) {
@@ -145,29 +153,20 @@ public class PrincipalActivity extends AppCompatActivity {
         datos.remove(posicionSeleccionada);
 
         ArchivoTXT info = new ArchivoTXT();
-        if(info.EscribirArchivo(this, datos)) {
+        if (info.EscribirArchivo(this, datos)) {
             adaptador.notifyDataSetChanged();
             posicionSeleccionada = -1;
+            limpiarCampos();
             Toast.makeText(this, "Registro eliminado correctamente", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Error al eliminar el registro", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void btnLimpiar(View v) {
-        txtnombre.setText("");
-        txtedad.setText("");
-        txtcorreo.setText("");
-        posicionSeleccionada = -1;
-        Toast.makeText(this, "Campos limpiados", Toast.LENGTH_SHORT).show();
-    }
-
     public void cargarInfo() {
         ArchivoTXT info = new ArchivoTXT();
-        if(info.LeerArchivo(this)) {
-            if(info.getDatos().size() > 0) {
-                datos = info.getDatos();
-            }
+        if (info.LeerArchivo(this) && info.getDatos().size() > 0) {
+            datos = info.getDatos();
         } else {
             datos = new ArrayList<>();
             datos.add("Nombre");

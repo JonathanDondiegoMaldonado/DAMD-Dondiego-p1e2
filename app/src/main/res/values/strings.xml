@@ -7,8 +7,8 @@
     <string name="hedad">Aqui tu edad</string>
     <string name="lcorreo">Ingresa tu correo</string>
     <string name="hcorreo">Aqui tu correo</string>
+    <string name="btnNuevo">Nuevo</string>
     <string name="btnGrabar">Grabar</string>
     <string name="btnEditar">Editar</string>
     <string name="btnEliminar">Eliminar</string>
-    <string name="btnLimpiar">Limpiar</string>
 </resources>
